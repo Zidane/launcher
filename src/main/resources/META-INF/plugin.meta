@@ -1,0 +1,24 @@
+{
+    "plugins": [{
+        "id": "tester",
+        "name": "Tester",
+        "version": "1.0",
+        "main-class": "org.spongepowered.test.TestPlugin",
+        "links": {
+            "homepage": "https://www.spongepowered.org",
+            "source": "https://www.spongepowered.org/source",
+            "issues": "https://www.spongepowered.org/issues"
+        },
+        "contributors": [{
+            "name": "SpongePowered",
+            "description": "Lead Developer"
+        }],
+        "dependencies": [{
+            "id": "spongeapi",
+            "version": "8.0+"
+        }],
+        "extra": {
+            "property": "true"
+        }
+    }]
+}

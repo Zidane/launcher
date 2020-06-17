@@ -1,0 +1,12 @@
+{
+    "required": true,
+    "minVersion": "0.8",
+    "package": "org.spongepowered.test.mixin",
+    "refmap": "mixins.refmap.json",
+    "target": "@env(DEFAULT)",
+    "compatibilityLevel": "JAVA_8",
+    "mixinPriority": 900,
+    "client": [
+        "client.ClientBrandRetrieverMixin"
+    ]
+}

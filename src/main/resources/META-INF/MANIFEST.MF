@@ -1,0 +1,2 @@
+Loader: java_plain
+MixinConfigs: mixins.json
