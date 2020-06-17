@@ -55,11 +55,6 @@ public final class JavaPluginLanguageService extends JVMPluginLanguageService {
         return JavaPluginLanguageService.NAME;
     }
 
-    @Override
-    public String getPluginMetadataFileName() {
-        return LauncherConstants.Plugin.Metadata.FILENAME;
-    }
-
     @SuppressWarnings("unchecked")
     @Override
     public Optional<PluginMetadataContainer> createPluginMetadata(final PluginEnvironment environment, final String filename, final InputStream stream) {
@@ -150,12 +145,6 @@ public final class JavaPluginLanguageService extends JVMPluginLanguageService {
         }
 
         return Optional.of(new PluginMetadataContainer(pluginMetadata));
-    }
-
-    @Override
-    protected List<PluginCandidate> sortCandidates(final List<PluginCandidate> pluginCandidates) {
-        // TODO Sort based on dependencies..
-        return pluginCandidates;
     }
 
     @Override
