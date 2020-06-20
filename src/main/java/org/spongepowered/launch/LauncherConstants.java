@@ -36,24 +36,9 @@ public final class LauncherConstants {
 
         public static final class Attributes {
 
-            public static final String LOADER = "Loader";
             public static final String MIXIN_CONFIGS = "MixinConfigs";
 
             private Attributes() {
-            }
-        }
-    }
-
-    public static final class Plugin {
-
-        private Plugin() {
-        }
-
-        public static final class Metadata {
-
-            public static final String FILENAME = "META-INF/plugin.meta";
-
-            private Metadata() {
             }
         }
     }
