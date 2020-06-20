@@ -25,18 +25,17 @@
 package org.spongepowered.modlauncher;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Maps;
 import cpw.mods.modlauncher.api.IEnvironment;
 import cpw.mods.modlauncher.api.ITransformationService;
 import cpw.mods.modlauncher.api.ITransformer;
 import org.spongepowered.launch.plugin.PluginLoader;
-import org.spongepowered.launch.util.ImmutableMapEntry;
 import org.spongepowered.launch.util.MixinUtils;
 import org.spongepowered.plugin.PluginEnvironment;
 import org.spongepowered.plugin.PluginFile;
 import org.spongepowered.plugin.PluginKeys;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -85,7 +84,7 @@ public final class PluginDiscovererService implements ITransformationService {
                 resources
                     .stream()
                     .filter(pluginFile -> pluginFile.getManifest().isPresent() && MixinUtils.getMixinConfigs(pluginFile.getManifest().get()).isPresent())
-                    .map(pluginFile -> ImmutableMapEntry.of(pluginFile.getRootPath().getFileName().toString(), pluginFile.getRootPath()))
+                    .map(pluginFile -> Maps.immutableEntry(pluginFile.getRootPath().getFileName().toString(), pluginFile.getRootPath()))
                     .collect(Collectors.toList())
             );
         }

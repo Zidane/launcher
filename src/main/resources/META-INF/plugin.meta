@@ -4,21 +4,37 @@
         "name": "Tester",
         "version": "1.0",
         "main-class": "org.spongepowered.test.TestPlugin",
+        "description": "Just testing things...",
         "links": {
             "homepage": "https://www.spongepowered.org",
             "source": "https://www.spongepowered.org/source",
             "issues": "https://www.spongepowered.org/issues"
         },
-        "contributors": [{
-            "name": "SpongePowered",
-            "description": "Lead Developer"
-        }],
-        "dependencies": [{
-            "id": "spongeapi",
-            "version": "8.0+"
-        }],
+        "contributors": [
+            {
+                "name": "SpongePowered",
+                "description": "Lead Developer"
+            },
+            {
+                "name": "Example Dev A",
+                "description": "Lead Developer"
+            }
+        ],
+        "dependencies": [
+            {
+                "id": "spongeapi",
+                "version": "8.0",
+                "optional": false
+            },
+            {
+                "id": "examplea",
+                "version": "1.0",
+                "load-order": "after",
+                "optional": true
+            }
+        ],
         "extra": {
-            "property": "true"
+            "property": "examplea"
         }
     }]
 }
