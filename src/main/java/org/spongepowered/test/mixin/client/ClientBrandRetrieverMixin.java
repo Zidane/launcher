@@ -1,5 +1,5 @@
 /*
- * This file is part of plugin-spi, licensed under the MIT License (MIT).
+ * This file is part of launcher, licensed under the MIT License (MIT).
  *
  * Copyright (c) SpongePowered <https://www.spongepowered.org>
  * Copyright (c) contributors
@@ -37,6 +37,6 @@ public abstract class ClientBrandRetrieverMixin {
      */
     @Overwrite
     public static String getClientModName() {
-        return "spongevanilla";
+        return "launcher";
     }
 }
