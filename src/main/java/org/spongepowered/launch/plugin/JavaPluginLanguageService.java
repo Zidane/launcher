@@ -25,6 +25,7 @@
 package org.spongepowered.launch.plugin;
 
 import com.google.inject.Injector;
+import org.spongepowered.plugin.InvalidPluginException;
 import org.spongepowered.plugin.PluginCandidate;
 import org.spongepowered.plugin.PluginEnvironment;
 import org.spongepowered.plugin.PluginKeys;
@@ -40,14 +41,18 @@ public final class JavaPluginLanguageService extends JVMPluginLanguageService {
     }
 
     @Override
-    protected Object createPluginInstance(final PluginEnvironment environment, final PluginCandidate candidate, final ClassLoader targetClassLoader) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-        final String mainClass = candidate.getMetadata().getMainClass();
-        final Class<?> pluginClass = Class.forName(mainClass, true, targetClassLoader);
-        final Injector parentInjector = environment.getBlackboard().get(PluginKeys.PARENT_INJECTOR).orElse(null);
-        if (parentInjector != null) {
-            final Injector childInjector = parentInjector.createChildInjector(new PluginModule());
-            return childInjector.getInstance(pluginClass);
+    protected Object createPluginInstance(final PluginEnvironment environment, final PluginCandidate candidate, final ClassLoader targetClassLoader) throws InvalidPluginException {
+        try {
+            final String mainClass = candidate.getMetadata().getMainClass();
+            final Class<?> pluginClass = Class.forName(mainClass, true, targetClassLoader);
+            final Injector parentInjector = environment.getBlackboard().get(PluginKeys.PARENT_INJECTOR).orElse(null);
+            if (parentInjector != null) {
+                final Injector childInjector = parentInjector.createChildInjector(new PluginModule());
+                return childInjector.getInstance(pluginClass);
+            }
+            return pluginClass.newInstance();
+        } catch (final Exception ex) {
+            throw new InvalidPluginException("An error occurred creating an instance of plugin '" + candidate.getMetadata().getId() + "'!", ex);
         }
-        return pluginClass.newInstance();
     }
 }
