@@ -27,42 +27,88 @@ package org.spongepowered.launch;
 import com.google.inject.Guice;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.spongepowered.launch.plugin.DummyPluginContainer;
 import org.spongepowered.launch.plugin.PluginLoader;
+import org.spongepowered.launch.plugin.PluginManager;
 import org.spongepowered.plugin.Blackboard;
+import org.spongepowered.plugin.PluginCandidate;
+import org.spongepowered.plugin.PluginContainer;
 import org.spongepowered.plugin.PluginEnvironment;
 import org.spongepowered.plugin.PluginKeys;
+import org.spongepowered.plugin.jvm.JVMPluginContainer;
+import org.spongepowered.plugin.metadata.PluginContributor;
+import org.spongepowered.plugin.metadata.PluginMetadata;
 
 import java.nio.file.Path;
 import java.util.List;
 
 public abstract class Launcher {
 
-    private static final Logger logger = LogManager.getLogger("Launcher");
-    private static final PluginEnvironment pluginEnvironment = new PluginEnvironment();
-    private static PluginLoader pluginLoader;
+    public static Launcher INSTANCE;
 
-    public static Logger getLogger() {
-        return Launcher.logger;
+    private final Logger logger = LogManager.getLogger("Launcher");
+    private final PluginEnvironment pluginEnvironment = new PluginEnvironment();
+    private final PluginManager pluginManager = new PluginManager();
+
+    protected Launcher() {
+        INSTANCE = this;
     }
 
-    public static PluginEnvironment getPluginEnvironment() {
-        return Launcher.pluginEnvironment;
+    public Logger getLogger() {
+        return this.logger;
     }
 
-    protected static void populateBlackboard(final String pluginSpiVersion, final Path baseDirectory, final List<Path> pluginDirectories) {
-        final Blackboard blackboard = Launcher.getPluginEnvironment().getBlackboard();
+    public PluginEnvironment getPluginEnvironment() {
+        return this.pluginEnvironment;
+    }
+
+    public PluginManager getPluginManager() {
+        return this.pluginManager;
+    }
+
+    public static void launch(final String pluginSpiVersion, final Path baseDirectory, final List<Path> pluginDirectories, final String[] args) {
+        Launcher.INSTANCE.launch0(pluginSpiVersion, baseDirectory, pluginDirectories, args);
+    }
+
+    protected void launch0(final String pluginSpiVersion, final Path baseDirectory, final List<Path> pluginDirectories, final String[] args) {
+        this.populateBlackboard(pluginSpiVersion, baseDirectory, pluginDirectories);
+        this.createInternalPlugins();
+        this.loadPlugins();
+    }
+
+    protected void populateBlackboard(final String pluginSpiVersion, final Path baseDirectory, final List<Path> pluginDirectories) {
+        final Blackboard blackboard = this.getPluginEnvironment().getBlackboard();
         blackboard.getOrCreate(PluginKeys.VERSION, () -> pluginSpiVersion);
         blackboard.getOrCreate(PluginKeys.BASE_DIRECTORY, () -> baseDirectory);
         blackboard.getOrCreate(PluginKeys.PLUGIN_DIRECTORIES, () -> pluginDirectories);
         blackboard.getOrCreate(PluginKeys.PARENT_INJECTOR, () -> Guice.createInjector(new LauncherModule()));
     }
 
-    protected static void loadPlugins() {
-        Launcher.pluginLoader = new PluginLoader(Launcher.pluginEnvironment);
+    protected void loadPlugins() {
+        final PluginLoader pluginLoader = new PluginLoader(this.pluginEnvironment, this.pluginManager);
         pluginLoader.discoverServices();
         pluginLoader.initialize();
         pluginLoader.discoverResources();
         pluginLoader.determineCandidates();
         pluginLoader.createContainers();
     }
+
+    private void createInternalPlugins() {
+        final Path gameDirectory = this.pluginEnvironment.getBlackboard().get(PluginKeys.BASE_DIRECTORY).get();
+        this.pluginManager.addPlugin(this.createMinecraftPlugin(gameDirectory));
+        PluginMetadata metadata = PluginMetadata.builder()
+            .setId("launcher")
+            .setName("Launcher")
+            .setVersion("0.1")
+            .setDescription("Testing Launcher for starting a Minecraft Client/Server with Mixin and Plugins.")
+            .setMainClass("org.spongepowered.launch.Launcher")
+            .contributor(PluginContributor.builder()
+                .setName("Zidane")
+                .setDescription("Lead Developer")
+                .build())
+            .build();
+        this.pluginManager.addPlugin(new DummyPluginContainer(metadata, gameDirectory, this.getLogger(), this));
+    }
+
+    protected abstract PluginContainer createMinecraftPlugin(final Path gameDirectory);
 }

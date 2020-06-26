@@ -22,19 +22,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.launch.util;
+package org.spongepowered.test.mixin.server;
 
-import org.spongepowered.launch.LauncherConstants;
+import net.minecraft.server.MinecraftServer;
+import org.apache.logging.log4j.Logger;
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.launch.Launcher;
+import org.spongepowered.plugin.PluginContainer;
 
-import java.util.Optional;
-import java.util.jar.Manifest;
+@Mixin(MinecraftServer.class)
+public abstract class MinecraftServerMixin {
 
-public final class MixinUtils {
+    @Shadow @Final private static Logger LOGGER;
 
-    private MixinUtils() {
-    }
-
-    public static Optional<String> getMixinConfigs(final Manifest manifest) {
-        return Optional.ofNullable(manifest.getMainAttributes().getValue(LauncherConstants.Manifest.Attributes.MIXIN_CONFIGS));
+    @Inject(method = "main", at = @At("HEAD"))
+    private static void impl$printPlugins(final String[] args, final CallbackInfo ci) {
+        for (final PluginContainer plugin : Launcher.INSTANCE.getPluginManager().getPlugins()) {
+            LOGGER.info(plugin);
+        }
     }
 }

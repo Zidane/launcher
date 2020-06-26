@@ -30,9 +30,7 @@ import cpw.mods.modlauncher.api.IEnvironment;
 import cpw.mods.modlauncher.api.ITransformationService;
 import cpw.mods.modlauncher.api.ITransformer;
 import org.spongepowered.launch.plugin.PluginLoader;
-import org.spongepowered.launch.util.MixinUtils;
 import org.spongepowered.plugin.PluginEnvironment;
-import org.spongepowered.plugin.PluginFile;
 import org.spongepowered.plugin.PluginKeys;
 
 import java.nio.file.Path;
@@ -78,13 +76,12 @@ public final class PluginDiscovererService implements ITransformationService {
 
         final List<Map.Entry<String, Path>> launchResources = new ArrayList<>();
 
-        for (final Map.Entry<String, Collection<PluginFile>> resourcesEntry : this.pluginLoader.getResources().entrySet()) {
-            final Collection<PluginFile> resources = resourcesEntry.getValue();
+        for (final Map.Entry<String, Collection<Path>> resourcesEntry : this.pluginLoader.getResources().entrySet()) {
+            final Collection<Path> resources = resourcesEntry.getValue();
             launchResources.addAll(
                 resources
                     .stream()
-                    .filter(pluginFile -> pluginFile.getManifest().isPresent() && MixinUtils.getMixinConfigs(pluginFile.getManifest().get()).isPresent())
-                    .map(pluginFile -> Maps.immutableEntry(pluginFile.getRootPath().getFileName().toString(), pluginFile.getRootPath()))
+                    .map(pluginFile -> Maps.immutableEntry(pluginFile.getFileName().toString(), pluginFile))
                     .collect(Collectors.toList())
             );
         }
@@ -95,7 +92,7 @@ public final class PluginDiscovererService implements ITransformationService {
     @Override
     public void onLoad(final IEnvironment env, final Set<String> otherServices) {
         this.pluginEnvironment.getLogger().info("SpongePowered PLUGIN Subsystem Version={} Service=ModLauncher", this.pluginEnvironment.getBlackboard().get(PluginKeys.VERSION).get());
-        this.pluginLoader = new PluginLoader(this.pluginEnvironment);
+        this.pluginLoader = new PluginLoader(this.pluginEnvironment, null);
         this.pluginLoader.discoverServices();
         this.pluginLoader.getServices().forEach((k, v) -> this.pluginLoader.getEnvironment().getLogger().info("Plugin language loader '{}' found.", k));
     }

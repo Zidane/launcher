@@ -25,16 +25,36 @@
 package org.spongepowered.launch;
 
 import net.minecraft.client.main.Main;
+import org.spongepowered.launch.plugin.DummyPluginContainer;
+import org.spongepowered.plugin.PluginContainer;
+import org.spongepowered.plugin.metadata.PluginContributor;
+import org.spongepowered.plugin.metadata.PluginMetadata;
 
 import java.nio.file.Path;
 import java.util.List;
 
 public final class ClientLauncher extends Launcher {
 
-    public static void launch(final String pluginSpiVersion, final Path baseDirectory, final List<Path> pluginDirectories, final String[] args) {
-        Launcher.populateBlackboard(pluginSpiVersion, baseDirectory, pluginDirectories);
-        Launcher.loadPlugins();
-        Launcher.getLogger().info("Loading Minecraft Client, please wait...");
+    @Override
+    public void launch0(final String pluginSpiVersion, final Path baseDirectory, final List<Path> pluginDirectories, final String[] args) {
+        super.launch0(pluginSpiVersion, baseDirectory, pluginDirectories, args);
+        this.getLogger().info("Loading Minecraft Client, please wait...");
         Main.main(args);
+    }
+
+    @Override
+    protected PluginContainer createMinecraftPlugin(final Path gameDirectory) {
+        PluginMetadata metadata = PluginMetadata.builder()
+            .setId("minecraft")
+            .setName("Minecraft Client")
+            .setVersion("1.14.4")
+            .setDescription("The Vanilla Minecraft Client")
+            .setMainClass("net.minecraft.client.main.Main")
+            .contributor(PluginContributor.builder()
+                .setName("Mojang AB")
+                .setDescription("Lead Developer")
+                .build())
+            .build();
+        return new DummyPluginContainer(metadata, gameDirectory, this.getLogger(), this);
     }
 }

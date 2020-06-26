@@ -34,6 +34,8 @@ import org.spongepowered.modlauncher.util.ArgumentList;
 import org.spongepowered.plugin.PluginEnvironment;
 import org.spongepowered.plugin.PluginKeys;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -42,7 +44,7 @@ public final class Main {
 
     private static PluginEnvironment pluginEnvironment;
 
-    public static void main(final String[] args) {
+    public static void main(final String[] args) throws IOException {
         final OptionParser parser = new OptionParser();
         final ArgumentAcceptingOptionSpec<Path> gameDir = parser.accepts("gameDir", "Alternative game directory").withRequiredArg().withValuesConvertedBy(new PathConverter(PathProperties.DIRECTORY_EXISTING)).defaultsTo(Paths.get("."));
         parser.allowsUnrecognizedOptions();
@@ -53,7 +55,15 @@ public final class Main {
         Main.pluginEnvironment.getBlackboard().getOrCreate(PluginKeys.VERSION, () -> PluginEnvironment.class.getPackage().getImplementationVersion());
         Main.pluginEnvironment.getBlackboard().getOrCreate(PluginKeys.BASE_DIRECTORY, () -> gameDirectory);
         // TODO Read in plugin directories from CLI/Config
-        Main.pluginEnvironment.getBlackboard().getOrCreate(PluginKeys.PLUGIN_DIRECTORIES, () -> Arrays.asList(gameDirectory.resolve("mods"), gameDirectory.resolve("plugins")));
+        final Path modsDirectory = gameDirectory.resolve("mods");
+        if (Files.notExists(modsDirectory)) {
+            Files.createDirectories(modsDirectory);
+        }
+        final Path pluginsDirectory = gameDirectory.resolve("plugins");
+        if (Files.notExists(pluginsDirectory)) {
+            Files.createDirectories(pluginsDirectory);
+        }
+        Main.pluginEnvironment.getBlackboard().getOrCreate(PluginKeys.PLUGIN_DIRECTORIES, () -> Arrays.asList(modsDirectory, pluginsDirectory));
 
         final ArgumentList lst = ArgumentList.from(args);
         Launcher.main(lst.getArguments());

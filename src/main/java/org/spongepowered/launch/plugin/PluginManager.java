@@ -22,24 +22,36 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.launch;
+package org.spongepowered.launch.plugin;
 
-public final class LauncherConstants {
+import com.google.common.base.Preconditions;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import org.spongepowered.plugin.PluginContainer;
 
-    private LauncherConstants() {
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Optional;
+
+public final class PluginManager {
+    private final Map<String, PluginContainer> plugins;
+
+    public PluginManager() {
+        this.plugins = new Object2ObjectOpenHashMap<>();
     }
 
-    public static final class Manifest {
+    public Optional<PluginContainer> getPlugin(final String id) {
+        return Optional.ofNullable(this.plugins.get(Preconditions.checkNotNull(id)));
+    }
 
-        private Manifest() {
-        }
+    public Collection<PluginContainer> getPlugins() {
+        return Collections.unmodifiableCollection(this.plugins.values());
+    }
 
-        public static final class Attributes {
+    public void addPlugin(final PluginContainer container) {
+        Preconditions.checkNotNull(container);
+        Preconditions.checkState(this.plugins.get(container.getMetadata().getId()) == null, "Attempt to load plugin twice!");
 
-            public static final String MIXIN_CONFIGS = "MixinConfigs";
-
-            private Attributes() {
-            }
-        }
+        this.plugins.put(container.getMetadata().getId(), container);
     }
 }
